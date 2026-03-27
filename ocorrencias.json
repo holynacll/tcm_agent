@@ -1,0 +1,37 @@
+{
+  "metadados": {
+    "arquivo": "tcm_2026-03-07_completo.pdf",
+    "total_paginas": 6,
+    "paginas_analisadas": 6,
+    "paginas_com_ocorrencias": 0,
+    "total_ocorrencias": 0,
+    "tokens_totais": 0,
+    "erros": [
+      {
+        "pagina": 1,
+        "erro": "\"Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\""
+      },
+      {
+        "pagina": 2,
+        "erro": "\"Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\""
+      },
+      {
+        "pagina": 3,
+        "erro": "\"Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\""
+      },
+      {
+        "pagina": 4,
+        "erro": "\"Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\""
+      },
+      {
+        "pagina": 5,
+        "erro": "\"Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\""
+      },
+      {
+        "pagina": 6,
+        "erro": "\"Could not resolve authentication method. Expected either api_key or auth_token to be set. Or for one of the `X-Api-Key` or `Authorization` headers to be explicitly omitted\""
+      }
+    ]
+  },
+  "ocorrencias": []
+}
