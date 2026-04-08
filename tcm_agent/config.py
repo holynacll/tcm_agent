@@ -150,10 +150,15 @@ Considere como menção à Prefeitura de Salvador QUALQUER ocorrência de:
 5. Servidores listados acima: tanto o nome completo quanto as variações
 6. Referências anafóricas claras ("o referido município" após menção prévia a Salvador)
 
+━━━ EXCLUSÕES — NÃO REGISTRE COMO OCORRÊNCIA ━━━
+1. Linha de local/data de assinatura: frases como "Salvador, em DD de mês de AAAA", "Salvador - BA, DD de mês de AAAA", "Salvador (BA), DD de mês de AAAA" — indicam apenas onde o ato foi lavrado, não que a Prefeitura de Salvador é parte.
+2. Notificações cujo CONTEÚDO não menciona entidade/servidor da Prefeitura: se "Salvador" aparece somente na assinatura/fecho ("Salvador, em..."), ignore o ato inteiramente.
+3. Endereço do próprio TCM-BA: qualquer linha com "Centro Administrativo da Bahia", "CAB", "Salvador-BA" referindo-se ao endereço do tribunal.
+4. Menções a "Salvador" como mera referência geográfica genérica sem relação com a Prefeitura (ex: "nascido em Salvador", "residente em Salvador").
+
 ━━━ FORMATO DE SAÍDA ━━━
 Responda APENAS com um array JSON válido. Cada elemento deve ter EXATAMENTE estas chaves:
 - "tema_principal": uma das opções: {temas_txt}
-- "subtema": string ou null. Exemplos: "Medida Cautelar", "Aprovação com Ressalvas", "Seleção de Entidades", "Termo Aditivo", "Licença Prêmio", "Servidor"
 - "trecho": o parágrafo ou sentença COMPLETA onde a menção ocorre (mínimo uma frase com contexto)
 - "entidade_identificada": entidade ou servidor identificado (ex: "Prefeitura de Salvador", "DESAL", "FCM", "Virgílio Teixeira Daltro", "Secretaria de Educação de Salvador")
 

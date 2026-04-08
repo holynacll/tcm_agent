@@ -3,10 +3,8 @@ Modelos de dados do agente TCM-BA.
 Usa dataclasses + validação manual para manter compatibilidade sem pydantic obrigatório.
 """
 
-from __future__ import annotations
-from dataclasses import dataclass, field, asdict
-from typing import Optional
 import json
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass
@@ -15,14 +13,13 @@ class Ocorrencia:
 
     pagina: int
     tema_principal: str
-    subtema: Optional[str]
     trecho: str
     entidade_identificada: str
 
     # metadados opcionais gerados pelo pipeline
-    edicao: Optional[str] = field(default=None)
-    data_publicacao: Optional[str] = field(default=None)
-    arquivo_origem: Optional[str] = field(default=None)
+    edicao: str | None = field(default=None)
+    data_publicacao: str | None = field(default=None)
+    arquivo_origem: str | None = field(default=None)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -32,7 +29,6 @@ class Ocorrencia:
         return cls(
             pagina=data.get("pagina", pagina),
             tema_principal=data.get("tema_principal", "Outro"),
-            subtema=data.get("subtema") or None,
             trecho=data.get("trecho", ""),
             entidade_identificada=data.get("entidade_identificada", ""),
         )
@@ -46,7 +42,7 @@ class ResultadoPagina:
     texto_original: str
     passou_prefiltro: bool
     ocorrencias: list[Ocorrencia] = field(default_factory=list)
-    erro: Optional[str] = field(default=None)
+    erro: str | None = field(default=None)
     tokens_utilizados: int = 0
 
     @property

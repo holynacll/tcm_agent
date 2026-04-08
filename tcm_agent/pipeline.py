@@ -5,13 +5,12 @@ Orquestra o fluxo completo:
   PDF → extração por página → pré-filtro → LLM → JSON estruturado
 """
 
-from __future__ import annotations
 import logging
 from pathlib import Path
 from typing import Optional
 
 from .agent import TCMAgente
-from .extractor import PaginaTexto, extrair_paginas, contar_paginas
+from .extractor import PaginaTexto, contar_paginas, extrair_paginas
 from .models import Ocorrencia, ResultadoAnalise, ResultadoPagina
 from .prefiltro import passou_prefiltro
 
@@ -45,7 +44,7 @@ class Pipeline:
     ):
         """
         Args:
-            api_key: Chave da API Anthropic (ou use ANTHROPIC_API_KEY env var).
+            api_key: Chave da API Gemini (ou use GEMINI_API_KEY / GOOGLE_API_KEY env var).
             usar_prefiltro: Se True, páginas sem termos de Salvador são ignoradas.
             usar_overlap: Se True, inclui contexto da página anterior no prompt.
             verbose: Se True, exibe progresso no stdout.
@@ -91,9 +90,7 @@ class Pipeline:
             caminho, paginas=paginas, overlap=self._usar_overlap
         )
 
-        self._log(
-            f"{len(paginas_texto)} página(s) extraídas de {total_paginas} total"
-        )
+        self._log(f"{len(paginas_texto)} página(s) extraídas de {total_paginas} total")
 
         resultados = self._processar_paginas(paginas_texto)
         return self._montar_resultado(
@@ -153,9 +150,7 @@ class Pipeline:
     # Internos
     # ─────────────────────────────────────────────
 
-    def _processar_paginas(
-        self, paginas: list[PaginaTexto]
-    ) -> list[ResultadoPagina]:
+    def _processar_paginas(self, paginas: list[PaginaTexto]) -> list[ResultadoPagina]:
         resultados: list[ResultadoPagina] = []
 
         for pagina in paginas:
@@ -176,9 +171,7 @@ class Pipeline:
         if self._usar_prefiltro:
             passou, termos = passou_prefiltro(pagina.texto)
             if not passou:
-                self._log(
-                    f"  Página {pagina.numero}: ignorada pelo pré-filtro"
-                )
+                self._log(f"  Página {pagina.numero}: ignorada pelo pré-filtro")
                 return ResultadoPagina(
                     pagina=pagina.numero,
                     texto_original=pagina.texto,
@@ -241,6 +234,18 @@ class Pipeline:
 
         # ordena por página
         todas_ocorrencias.sort(key=lambda o: o.pagina)
+
+        # deduplica: quando o LLM retorna o mesmo trecho múltiplas vezes
+        # (cada vez com uma entidade diferente do mesmo parágrafo), mantém
+        # apenas a primeira ocorrência por (pagina, trecho).
+        vistos: set[tuple[int, str]] = set()
+        unicas: list[Ocorrencia] = []
+        for oc in todas_ocorrencias:
+            chave = (oc.pagina, oc.trecho.strip())
+            if chave not in vistos:
+                vistos.add(chave)
+                unicas.append(oc)
+        todas_ocorrencias = unicas
 
         analise = ResultadoAnalise(
             arquivo=nome_arquivo,

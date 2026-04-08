@@ -7,7 +7,6 @@ Páginas sem nenhuma correspondência são ignoradas, economizando ~70%
 das chamadas em edições sem menção a Salvador.
 """
 
-from __future__ import annotations
 import re
 import unicodedata
 from functools import lru_cache

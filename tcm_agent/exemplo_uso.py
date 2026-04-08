@@ -2,7 +2,7 @@
 Exemplos de uso do agente TCM-BA.
 
 Execute com:
-    ANTHROPIC_API_KEY=sk-... python exemplo_uso.py
+    GEMINI_API_KEY=AIza... python exemplo_uso.py
 """
 
 import os
@@ -158,9 +158,9 @@ def exemplo_lote():
 
 # ──────────────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("ERRO: Variável ANTHROPIC_API_KEY não definida.")
-        print("      Execute: export ANTHROPIC_API_KEY=sk-ant-...")
+    if not os.getenv("GEMINI_API_KEY"):
+        print("ERRO: Variável GEMINI_API_KEY não definida.")
+        print("      Execute: export GEMINI_API_KEY=sk-ant-...")
         sys.exit(1)
 
     print("Executando Exemplo 3 (texto direto — não requer PDF)…\n")

@@ -7,11 +7,13 @@ Uso:
     python -m tcm_agent.cli arquivo.pdf --paginas 1 5 10 --saida resultado.json
     python -m tcm_agent.cli arquivo.pdf --sem-prefiltro --sem-overlap --verbose
     python -m tcm_agent.cli arquivo.pdf --edicao 2765 --data 2026-03-07
+
+    # Calibrar constantes de recorte (header/footer/colunas):
+    python -m tcm_agent.cli --inspecionar arquivo.pdf
+    python -m tcm_agent.cli --inspecionar arquivo.pdf --paginas 1 2 3
 """
 
-from __future__ import annotations
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -20,7 +22,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="tcm_agent",
         description="Analisa edições do Diário Oficial do TCM-BA em busca de "
-                    "menções à Prefeitura de Salvador.",
+        "menções à Prefeitura de Salvador.",
     )
 
     parser.add_argument(
@@ -29,7 +31,8 @@ def main() -> None:
         help="Caminho para o arquivo PDF do Diário Oficial TCM-BA",
     )
     parser.add_argument(
-        "-p", "--paginas",
+        "-p",
+        "--paginas",
         nargs="+",
         type=int,
         metavar="N",
@@ -37,7 +40,8 @@ def main() -> None:
         help="Páginas específicas a analisar (1-based). Ex: --paginas 1 3 5",
     )
     parser.add_argument(
-        "-s", "--saida",
+        "-s",
+        "--saida",
         type=str,
         default=None,
         metavar="arquivo.json",
@@ -74,23 +78,38 @@ def main() -> None:
         "--api-key",
         type=str,
         default=None,
-        help="Chave da API Anthropic (alternativa à variável ANTHROPIC_API_KEY).",
+        help="Chave da API Gemini (alternativa às variáveis GEMINI_API_KEY / GOOGLE_API_KEY).",
     )
     parser.add_argument(
-        "-v", "--verbose",
+        "-v",
+        "--verbose",
         action="store_true",
         help="Exibe progresso detalhado.",
     )
+    parser.add_argument(
+        "--inspecionar",
+        action="store_true",
+        help=(
+            "Inspeciona o layout do PDF (dimensões, trechos de topo/base) para "
+            "calibrar as constantes de recorte em extractor.py. "
+            "Use --paginas para escolher quais páginas inspecionar (padrão: 1 e 2)."
+        ),
+    )
 
     args = parser.parse_args()
-
-    # importa aqui para evitar custo de importação em --help
-    from tcm_agent import Pipeline
 
     caminho = Path(args.pdf)
     if not caminho.exists():
         print(f"Erro: arquivo não encontrado: {caminho}", file=sys.stderr)
         sys.exit(1)
+
+    if args.inspecionar:
+        from tcm_agent.extractor import inspecionar_layout
+        inspecionar_layout(caminho, paginas=args.paginas)
+        return
+
+    # importa aqui para evitar custo de importação em --help
+    from tcm_agent import Pipeline
 
     metadados = {}
     if args.edicao:
