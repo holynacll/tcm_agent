@@ -10,9 +10,9 @@ wheels/
 .venv
 
 # Data files
-# *.pdf
+*.pdf
 *.csv
 *.json
 *.xlsx
 *.xls
-# data/
+data/
