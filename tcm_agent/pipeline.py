@@ -7,7 +7,6 @@ Orquestra o fluxo completo:
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from .agent import TCMAgente
 from .extractor import PaginaTexto, contar_paginas, extrair_paginas
@@ -37,7 +36,7 @@ class Pipeline:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         usar_prefiltro: bool = True,
         usar_overlap: bool = True,
         verbose: bool = False,
@@ -68,8 +67,8 @@ class Pipeline:
     def analisar_pdf(
         self,
         caminho_pdf: str | Path,
-        paginas: Optional[list[int]] = None,
-        metadados: Optional[dict] = None,
+        paginas: list[int] | None = None,
+        metadados: dict | None = None,
     ) -> ResultadoAnalise:
         """
         Analisa um arquivo PDF completo.
@@ -104,7 +103,7 @@ class Pipeline:
         self,
         textos: dict[int, str],
         nome_arquivo: str = "texto_avulso",
-        metadados: Optional[dict] = None,
+        metadados: dict | None = None,
     ) -> ResultadoAnalise:
         """
         Analisa textos já extraídos (dict {numero_pagina: texto}).
@@ -211,7 +210,7 @@ class Pipeline:
         nome_arquivo: str,
         total_paginas: int,
         resultados: list[ResultadoPagina],
-        metadados: Optional[dict],
+        metadados: dict | None,
     ) -> ResultadoAnalise:
         todas_ocorrencias: list[Ocorrencia] = []
         erros: list[dict] = []

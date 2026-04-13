@@ -5,9 +5,9 @@ Execute com:
     GEMINI_API_KEY=AIza... python exemplo_uso.py
 """
 
+import json
 import os
 import sys
-import json
 from pathlib import Path
 
 # permite importar tcm_agent do diretório atual
@@ -32,9 +32,11 @@ def exemplo_pdf_completo():
     )
 
     # exibe resumo
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Arquivo: {resultado.arquivo}")
-    print(f"Páginas analisadas: {resultado.paginas_analisadas}/{resultado.total_paginas}")
+    print(
+        f"Páginas analisadas: {resultado.paginas_analisadas}/{resultado.total_paginas}"
+    )
     print(f"Ocorrências encontradas: {resultado.total_ocorrencias}")
     print(f"Tokens utilizados: {resultado.tokens_totais:,}")
 
@@ -122,11 +124,11 @@ def exemplo_texto_direto():
     ocorrencias_json = json.loads(resultado.to_ocorrencias_json())
     for oc in ocorrencias_json:
         print(f"""
-  Página:    {oc['pagina']}
-  Tema:      {oc['tema_principal']}
-  Subtema:   {oc['subtema']}
-  Entidade:  {oc['entidade_identificada']}
-  Trecho:    {oc['trecho'][:120]}…
+  Página:    {oc["pagina"]}
+  Tema:      {oc["tema_principal"]}
+  Subtema:   {oc["subtema"]}
+  Entidade:  {oc["entidade_identificada"]}
+  Trecho:    {oc["trecho"][:120]}…
 """)
 
 
@@ -146,9 +148,7 @@ def exemplo_lote():
     for pdf in sorted(diretorio.glob("tcm_*.pdf")):
         print(f"\nProcessando: {pdf.name}")
         resultado = pipeline.analisar_pdf(pdf)
-        todas_ocorrencias.extend(
-            [oc.to_dict() for oc in resultado.ocorrencias]
-        )
+        todas_ocorrencias.extend([oc.to_dict() for oc in resultado.ocorrencias])
 
     # consolida tudo em um único JSON
     saida = json.dumps(todas_ocorrencias, ensure_ascii=False, indent=2)

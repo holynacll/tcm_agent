@@ -12,7 +12,6 @@ import logging
 import os
 import re
 import time
-from typing import Optional
 
 from google import genai
 from google.genai import errors as genai_errors
@@ -37,7 +36,7 @@ class TCMAgente:
     classificando cada ocorrência com tema, subtema, trecho e entidade.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         """
         Args:
             api_key: Chave da API Gemini. Se None, usa a variável de
@@ -183,7 +182,7 @@ class TCMAgente:
 
         return ocorrencias
 
-    def _validar_item(self, item: dict, numero_pagina: int) -> Optional[Ocorrencia]:
+    def _validar_item(self, item: dict, numero_pagina: int) -> Ocorrencia | None:
         """Valida e normaliza um item do array JSON."""
         # campos obrigatórios
         trecho = str(item.get("trecho", "")).strip()

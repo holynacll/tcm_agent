@@ -15,10 +15,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pdfplumber
-from pypdf import PdfReader
-
-PDFPLUMBER_OK = True
-PYPDF_OK = True
 
 logger = logging.getLogger(__name__)
 
@@ -28,15 +24,15 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Páginas 2 em diante
-HEADER_H: float = 80    # cabeçalho ocupa 0–80pt (strip 80–160pt já é conteúdo)
-FOOTER_H: float = 15    # rodapé mínimo; conteúdo vai até o fundo nessas páginas
+HEADER_H: float = 80  # cabeçalho ocupa 0–80pt (strip 80–160pt já é conteúdo)
+FOOTER_H: float = 15  # rodapé mínimo; conteúdo vai até o fundo nessas páginas
 
 # Página 1 tem cabeçalho e rodapé maiores
-HEADER_H_P1: float = 160   # cabeçalho + logo ocupa 0–160pt
-FOOTER_H_P1: float = 160   # assinatura digital (últimos 80pt) + marca d'água (80–160pt)
+HEADER_H_P1: float = 160  # cabeçalho + logo ocupa 0–160pt
+FOOTER_H_P1: float = 160  # assinatura digital (últimos 80pt) + marca d'água (80–160pt)
 
 # Layout em duas colunas
-COL_GAP: float = 12    # espaço entre as colunas (pt) — dividido ao meio
+COL_GAP: float = 12  # espaço entre as colunas (pt) — dividido ao meio
 
 # Palavras finais da página anterior a incluir como contexto
 OVERLAP_WORDS = 150
@@ -136,13 +132,7 @@ def extrair_paginas(
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo não encontrado: {caminho}")
 
-    if PDFPLUMBER_OK:
-        return _extrair_pdfplumber(caminho, paginas, overlap)
-    elif PYPDF_OK:
-        logger.warning("pdfplumber não disponível, usando pypdf (qualidade menor)")
-        return _extrair_pypdf(caminho, paginas, overlap)
-    else:
-        raise ImportError("Instale pdfplumber ou pypdf: pip install pdfplumber")
+    return _extrair_pdfplumber(caminho, paginas, overlap)
 
 
 def _extrair_pdfplumber(
@@ -184,53 +174,11 @@ def _extrair_pdfplumber(
     return resultados
 
 
-def _extrair_pypdf(
-    caminho: Path,
-    paginas_filtro: list[int] | None,
-    overlap: bool,
-) -> list[PaginaTexto]:
-    resultados: list[PaginaTexto] = []
-    texto_anterior = ""
-
-    reader = PdfReader(caminho)
-    total = len(reader.pages)
-    logger.info(f"PDF aberto (pypdf): {caminho.name} — {total} páginas")
-
-    for idx, page in enumerate(reader.pages):
-        num_pagina = idx + 1
-
-        if paginas_filtro and num_pagina not in paginas_filtro:
-            raw = page.extract_text() or ""
-            texto_anterior = " ".join(_limpar_texto(raw).split()[-OVERLAP_WORDS:])
-            continue
-
-        raw = page.extract_text() or ""
-        texto = _limpar_texto(raw)
-
-        contexto = texto_anterior if overlap else ""
-
-        resultados.append(
-            PaginaTexto(
-                numero=num_pagina,
-                texto=texto,
-                contexto_anterior=contexto,
-            )
-        )
-
-        texto_anterior = " ".join(texto.split()[-OVERLAP_WORDS:])
-
-    return resultados
-
-
 def contar_paginas(caminho_pdf: str | Path) -> int:
     """Retorna o número total de páginas do PDF sem extrair texto."""
     caminho = Path(caminho_pdf)
-    if PDFPLUMBER_OK:
-        with pdfplumber.open(caminho) as pdf:
-            return len(pdf.pages)
-    elif PYPDF_OK:
-        return len(PdfReader(caminho).pages)
-    raise ImportError("Instale pdfplumber ou pypdf")
+    with pdfplumber.open(caminho) as pdf:
+        return len(pdf.pages)
 
 
 def inspecionar_layout(
@@ -261,13 +209,15 @@ def inspecionar_layout(
 
             page = pdf.pages[num - 1]
             w, h = page.width, page.height
-            print(f"\nPágina {num}  —  {w:.1f} x {h:.1f} pt  "
-                  f"(coluna central estimada: x = {w / 2:.1f} pt)")
+            print(
+                f"\nPágina {num}  —  {w:.1f} x {h:.1f} pt  "
+                f"(coluna central estimada: x = {w / 2:.1f} pt)"
+            )
 
             for label, y0, y1 in [
-                ("TOPO  0–80pt",        0,      80),
-                ("TOPO  80–160pt",      80,     160),
-                ("BASE  últimos 80pt",  h - 80, h),
+                ("TOPO  0–80pt", 0, 80),
+                ("TOPO  80–160pt", 80, 160),
+                ("BASE  últimos 80pt", h - 80, h),
                 ("BASE  últimos 160pt", h - 160, h - 80),
             ]:
                 strip = page.crop((0, y0, w, y1))

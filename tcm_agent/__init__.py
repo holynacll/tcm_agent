@@ -19,9 +19,9 @@ Uso rápido:
         f.write(resultado.to_ocorrencias_json())
 """
 
-from .pipeline import Pipeline
-from .models import Ocorrencia, ResultadoAnalise, ResultadoPagina
 from .config import ORGAOS, SERVIDORES
+from .models import Ocorrencia, ResultadoAnalise, ResultadoPagina
+from .pipeline import Pipeline
 
 __all__ = [
     "Pipeline",
