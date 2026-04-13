@@ -228,9 +228,8 @@ class Pipeline:
         # ordena por página
         todas_ocorrencias.sort(key=lambda o: o.pagina)
 
-        # deduplica: quando o LLM retorna o mesmo trecho múltiplas vezes
-        # (cada vez com uma entidade diferente do mesmo parágrafo), mantém
-        # apenas a primeira ocorrência por (pagina, trecho).
+        # deduplica: quando o LLM retorna o mesmo trecho múltiplas vezes,
+        # mantém apenas a primeira ocorrência por (pagina, trecho).
         vistos: set[tuple[int, str]] = set()
         unicas: list[Ocorrencia] = []
         for oc in todas_ocorrencias:

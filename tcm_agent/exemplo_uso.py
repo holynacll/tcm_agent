@@ -66,7 +66,7 @@ def exemplo_paginas_selecionadas():
 
     print(f"\nOcorrências: {resultado.total_ocorrencias}")
     for oc in resultado.ocorrencias:
-        print(f"  p.{oc.pagina} [{oc.tema_principal}] {oc.entidade_identificada}")
+        print(f"  p.{oc.pagina} [{oc.tema}] {', '.join(oc.entidade_identificada)}")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@ def exemplo_texto_direto():
   Página:    {oc["pagina"]}
   Tema:      {oc["tema_principal"]}
   Subtema:   {oc["subtema"]}
-  Entidade:  {oc["entidade_identificada"]}
+  Entidade:  {", ".join(oc["entidade_identificada"])}
   Trecho:    {oc["trecho"][:120]}…
 """)
 
@@ -148,7 +148,7 @@ def exemplo_lote():
     for pdf in sorted(diretorio.glob("tcm_*.pdf")):
         print(f"\nProcessando: {pdf.name}")
         resultado = pipeline.analisar_pdf(pdf)
-        todas_ocorrencias.extend([oc.to_dict() for oc in resultado.ocorrencias])
+        todas_ocorrencias.extend([oc.model_dump() for oc in resultado.ocorrencias])
 
     # consolida tudo em um único JSON
     saida = json.dumps(todas_ocorrencias, ensure_ascii=False, indent=2)

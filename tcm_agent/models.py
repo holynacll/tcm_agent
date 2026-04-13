@@ -15,7 +15,7 @@ class Ocorrencia(BaseModel):
     pagina: int
     tema: str
     trecho: str
-    entidade_identificada: str
+    entidade_identificada: list[str] = Field(default_factory=list)
     siglas_mapeadas: list[str] = Field(default_factory=list)
     entidades_mapeadas: list[str] = Field(default_factory=list)
     servidores_mapeados: list[str] = Field(default_factory=list)
@@ -30,18 +30,26 @@ class Ocorrencia(BaseModel):
             return tema
         return next((t for t in TEMAS_VALIDOS if t.lower() in tema.lower()), "Outro")
 
-    @field_validator("trecho", "entidade_identificada", mode="before")
+    @field_validator("trecho", mode="before")
     @classmethod
     def strip_str(cls, v: object) -> str:
         return str(v).strip()
 
-    @field_validator("siglas_mapeadas", "entidades_mapeadas", "servidores_mapeados", mode="before")
+    @field_validator(
+        "entidade_identificada",
+        "siglas_mapeadas",
+        "entidades_mapeadas",
+        "servidores_mapeados",
+        mode="before",
+    )
     @classmethod
     def coerce_list(cls, v: object) -> list[str]:
         if v is None:
             return []
         if isinstance(v, list):
             return [str(x).strip() for x in v if x]
+        if isinstance(v, str) and v.strip():
+            return [v.strip()]
         return []
 
 
