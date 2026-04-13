@@ -1,37 +1,48 @@
 """
 Modelos de dados do agente TCM-BA.
-Usa dataclasses + validação manual para manter compatibilidade sem pydantic obrigatório.
+Usa Pydantic para coerção e validação das respostas do LLM.
 """
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
+
+from pydantic import BaseModel, Field, field_validator
 
 
-@dataclass
-class Ocorrencia:
-    """Representa uma ocorrência identificada no Diário Oficial."""
+class Ocorrencia(BaseModel):
+    """Representa uma ocorrência identificada no Diário Oficial (saída do LLM)."""
 
     pagina: int
-    tema_principal: str
+    tema: str
     trecho: str
     entidade_identificada: str
+    siglas_mapeadas: list[str] = Field(default_factory=list)
+    entidades_mapeadas: list[str] = Field(default_factory=list)
+    servidores_mapeados: list[str] = Field(default_factory=list)
 
-    # metadados opcionais gerados pelo pipeline
-    edicao: str | None = field(default=None)
-    data_publicacao: str | None = field(default=None)
-    arquivo_origem: str | None = field(default=None)
-
-    def to_dict(self) -> dict:
-        return asdict(self)
-
+    @field_validator("tema", mode="before")
     @classmethod
-    def from_dict(cls, data: dict, pagina: int) -> "Ocorrencia":
-        return cls(
-            pagina=data.get("pagina", pagina),
-            tema_principal=data.get("tema_principal", "Outro"),
-            trecho=data.get("trecho", ""),
-            entidade_identificada=data.get("entidade_identificada", ""),
-        )
+    def normalizar_tema(cls, v: object) -> str:
+        from .config import TEMAS_VALIDOS
+
+        tema = str(v).strip()
+        if tema in TEMAS_VALIDOS:
+            return tema
+        return next((t for t in TEMAS_VALIDOS if t.lower() in tema.lower()), "Outro")
+
+    @field_validator("trecho", "entidade_identificada", mode="before")
+    @classmethod
+    def strip_str(cls, v: object) -> str:
+        return str(v).strip()
+
+    @field_validator("siglas_mapeadas", "entidades_mapeadas", "servidores_mapeados", mode="before")
+    @classmethod
+    def coerce_list(cls, v: object) -> list[str]:
+        if v is None:
+            return []
+        if isinstance(v, list):
+            return [str(x).strip() for x in v if x]
+        return []
 
 
 @dataclass
@@ -62,29 +73,52 @@ class ResultadoAnalise:
     ocorrencias: list[Ocorrencia] = field(default_factory=list)
     erros: list[dict] = field(default_factory=list)
     tokens_totais: int = 0
+    edicao: str | None = None
+    data_publicacao: str | None = None
 
     def to_json(self, indent: int = 2) -> str:
+        temas: dict[str, int] = {}
+        paginas_com_oc: set[int] = set()
+        siglas: set[str] = set()
+        entidades: set[str] = set()
+        servidores: set[str] = set()
+
+        for oc in self.ocorrencias:
+            temas[oc.tema] = temas.get(oc.tema, 0) + 1
+            paginas_com_oc.add(oc.pagina)
+            siglas.update(oc.siglas_mapeadas)
+            entidades.update(oc.entidades_mapeadas)
+            servidores.update(oc.servidores_mapeados)
+
         return json.dumps(
             {
-                "metadados": {
-                    "arquivo": self.arquivo,
+                "diario": {
+                    "edicao": self.edicao,
+                    "data_publicacao": self.data_publicacao,
+                    "arquivo_origem": self.arquivo,
                     "total_paginas": self.total_paginas,
                     "paginas_analisadas": self.paginas_analisadas,
-                    "paginas_com_ocorrencias": self.paginas_com_ocorrencias,
-                    "total_ocorrencias": self.total_ocorrencias,
-                    "tokens_totais": self.tokens_totais,
+                    "tokens_utilizados": self.tokens_totais,
                     "erros": self.erros,
                 },
-                "ocorrencias": [o.to_dict() for o in self.ocorrencias],
+                "ocorrencias": [oc.model_dump() for oc in self.ocorrencias],
+                "resumo": {
+                    "total_ocorrencias": self.total_ocorrencias,
+                    "paginas_com_ocorrencias": sorted(paginas_com_oc),
+                    "temas": temas,
+                    "siglas_unicas": sorted(siglas),
+                    "entidades_unicas": sorted(entidades),
+                    "servidores_unicos": sorted(servidores),
+                },
             },
             ensure_ascii=False,
             indent=indent,
         )
 
     def to_ocorrencias_json(self, indent: int = 2) -> str:
-        """Exporta apenas o array de ocorrências (formato solicitado)."""
+        """Exporta apenas o array de ocorrências."""
         return json.dumps(
-            [o.to_dict() for o in self.ocorrencias],
+            [oc.model_dump() for oc in self.ocorrencias],
             ensure_ascii=False,
             indent=indent,
         )

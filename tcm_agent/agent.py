@@ -3,8 +3,7 @@ Módulo do agente LLM.
 
 Responsável por:
 - Chamar a API Gemini com retry exponencial
-- Parsear e validar a resposta JSON
-- Normalizar campos para o modelo Ocorrencia
+- Parsear e validar a resposta JSON via Pydantic
 """
 
 import json
@@ -16,8 +15,9 @@ import time
 from google import genai
 from google.genai import errors as genai_errors
 from google.genai import types
+from pydantic import ValidationError
 
-from .config import TEMAS_VALIDOS, build_system_prompt
+from .config import build_system_prompt
 from .models import Ocorrencia
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class TCMAgente:
     Agente de análise do Diário Oficial do TCM-BA.
 
     Identifica menções à Prefeitura de Salvador em texto extraído de PDF,
-    classificando cada ocorrência com tema, subtema, trecho e entidade.
+    classificando cada ocorrência com tema, trecho e entidade.
     """
 
     def __init__(self, api_key: str | None = None):
@@ -183,35 +183,13 @@ class TCMAgente:
         return ocorrencias
 
     def _validar_item(self, item: dict, numero_pagina: int) -> Ocorrencia | None:
-        """Valida e normaliza um item do array JSON."""
-        # campos obrigatórios
-        trecho = str(item.get("trecho", "")).strip()
-        entidade = str(item.get("entidade_identificada", "")).strip()
+        """Valida e normaliza um item do array JSON via Pydantic."""
+        # garante pagina caso o LLM omita
+        if not item.get("pagina"):
+            item = {**item, "pagina": numero_pagina}
 
-        if not trecho or not entidade:
-            logger.debug("Item descartado (campos obrigatórios ausentes): %s", item)
-            return None
-
-        # normaliza tema_principal
-        tema = str(item.get("tema_principal", "Outro")).strip()
-        if tema not in TEMAS_VALIDOS:
-            # tenta match parcial (ex: "Notificação Secretaria" → "Notificação")
-            tema_norm = next(
-                (t for t in TEMAS_VALIDOS if t.lower() in tema.lower()), "Outro"
-            )
-            logger.debug("Tema '%s' normalizado para '%s'", tema, tema_norm)
-            tema = tema_norm
-
-        # página: usa a fornecida ou a da resposta, prevalece a fornecida
-        pagina = item.get("pagina", numero_pagina)
         try:
-            pagina = int(pagina)
-        except (ValueError, TypeError):
-            pagina = numero_pagina
-
-        return Ocorrencia(
-            pagina=pagina,
-            tema_principal=tema,
-            trecho=trecho,
-            entidade_identificada=entidade,
-        )
+            return Ocorrencia.model_validate(item)
+        except ValidationError as e:
+            logger.debug("Item descartado (validação falhou): %s — %s", item, e)
+            return None

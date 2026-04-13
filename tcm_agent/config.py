@@ -158,9 +158,13 @@ Considere como menção à Prefeitura de Salvador QUALQUER ocorrência de:
 
 ━━━ FORMATO DE SAÍDA ━━━
 Responda APENAS com um array JSON válido. Cada elemento deve ter EXATAMENTE estas chaves:
-- "tema_principal": uma das opções: {temas_txt}
+- "tema": uma das opções: {temas_txt}
 - "trecho": o parágrafo ou sentença COMPLETA onde a menção ocorre (mínimo uma frase com contexto)
-- "entidade_identificada": entidade ou servidor identificado (ex: "Prefeitura de Salvador", "DESAL", "FCM", "Virgílio Teixeira Daltro", "Secretaria de Educação de Salvador")
+- "entidade_identificada": entidade ou servidor principal identificado (ex: "Prefeitura de Salvador", "Companhia de Desenvolvimento Urbano de Salvador", "Virgílio Teixeira Daltro")
+- "siglas_mapeadas": array com todas as siglas do organograma encontradas no trecho (ex: ["DESAL", "SMED"]); use [] se nenhuma
+- "entidades_mapeadas": array com os nomes completos das entidades do organograma mencionadas no trecho; use [] se nenhuma
+- "servidores_mapeados": array com os nomes dos servidores da Prefeitura mencionados no trecho; use [] se nenhum
+- "pagina": número da página analisada (inteiro)
 
 Se não houver nenhuma menção: retorne []
 NÃO inclua texto fora do JSON. NÃO use markdown. NÃO use blocos de código.

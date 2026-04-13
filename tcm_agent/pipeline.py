@@ -223,12 +223,6 @@ class Pipeline:
                 erros.append({"pagina": r.pagina, "erro": r.erro})
             if r.ocorrencias:
                 paginas_com_ocorrencias += 1
-                # enriquece com metadados do documento
-                for oc in r.ocorrencias:
-                    if metadados:
-                        oc.edicao = metadados.get("edicao")
-                        oc.data_publicacao = metadados.get("data_publicacao")
-                    oc.arquivo_origem = nome_arquivo
                 todas_ocorrencias.extend(r.ocorrencias)
 
         # ordena por página
@@ -255,6 +249,8 @@ class Pipeline:
             ocorrencias=todas_ocorrencias,
             erros=erros,
             tokens_totais=tokens_totais,
+            edicao=metadados.get("edicao") if metadados else None,
+            data_publicacao=metadados.get("data_publicacao") if metadados else None,
         )
 
         self._log(
