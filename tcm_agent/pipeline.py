@@ -91,6 +91,12 @@ class Pipeline:
 
         self._log(f"{len(paginas_texto)} página(s) extraídas de {total_paginas} total")
 
+        secoes = {p.secao for p in paginas_texto if p.secao}
+        if secoes:
+            self._log(f"Seções identificadas: {', '.join(sorted(secoes))}")
+        else:
+            self._log("Nenhuma seção identificada no índice (contexto de seção indisponível)")
+
         resultados = self._processar_paginas(paginas_texto)
         return self._montar_resultado(
             nome_arquivo=caminho.name,
@@ -189,6 +195,8 @@ class Pipeline:
                 texto=pagina.texto_com_contexto,
                 numero_pagina=pagina.numero,
             )
+            for oc in ocorrencias:
+                oc.secao = pagina.secao
             return ResultadoPagina(
                 pagina=pagina.numero,
                 texto_original=pagina.texto,
@@ -224,6 +232,15 @@ class Pipeline:
             if r.ocorrencias:
                 paginas_com_ocorrencias += 1
                 todas_ocorrencias.extend(r.ocorrencias)
+
+        # descarta ocorrências sem nenhum elemento mapeado (falsos positivos do LLM)
+        todas_ocorrencias = [
+            oc for oc in todas_ocorrencias
+            if oc.entidade_identificada
+            or oc.siglas_mapeadas
+            or oc.entidades_mapeadas
+            or oc.servidores_mapeados
+        ]
 
         # ordena por página
         todas_ocorrencias.sort(key=lambda o: o.pagina)

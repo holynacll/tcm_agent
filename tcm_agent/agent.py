@@ -33,7 +33,7 @@ class TCMAgente:
     Agente de análise do Diário Oficial do TCM-BA.
 
     Identifica menções à Prefeitura de Salvador em texto extraído de PDF,
-    classificando cada ocorrência com tema, trecho e entidade.
+    classificando cada ocorrência com trecho e entidade.
     """
 
     def __init__(self, api_key: str | None = None):

@@ -66,7 +66,7 @@ def exemplo_paginas_selecionadas():
 
     print(f"\nOcorrências: {resultado.total_ocorrencias}")
     for oc in resultado.ocorrencias:
-        print(f"  p.{oc.pagina} [{oc.tema}] {', '.join(oc.entidade_identificada)}")
+        print(f"  p.{oc.pagina} [{oc.secao}] {', '.join(oc.entidade_identificada)}")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -125,8 +125,7 @@ def exemplo_texto_direto():
     for oc in ocorrencias_json:
         print(f"""
   Página:    {oc["pagina"]}
-  Tema:      {oc["tema_principal"]}
-  Subtema:   {oc["subtema"]}
+  Seção:     {oc["secao"]}
   Entidade:  {", ".join(oc["entidade_identificada"])}
   Trecho:    {oc["trecho"][:120]}…
 """)

@@ -49,40 +49,67 @@ ORGAOS: dict[str, str] = {
 
 SERVIDORES: list[dict] = [
     {"nome_completo": "Bruno Soares Reis", "variacoes": ["Bruno Reis"]},
-    {"nome_completo": "Luciano Ricardo Gomes de Sandes", "variacoes": ["Luciano Sandes"]},
+    {
+        "nome_completo": "Luciano Ricardo Gomes de Sandes",
+        "variacoes": ["Luciano Sandes"],
+    },
     {"nome_completo": "Carlos Felipe Vazquez de Souza Leão", "variacoes": []},
     {"nome_completo": "Ana Paula Andrade Matos", "variacoes": ["Ana Paula Matos"]},
     {"nome_completo": "Maria Rita Góes Garrido", "variacoes": ["Rita Garrido"]},
     {"nome_completo": "Eduardo Carvalho Vaz Porto", "variacoes": ["Eduardo Porto"]},
-    {"nome_completo": "Luiz Antônio Vasconcellos Carreira", "variacoes": ["Luiz Carreira"]},
+    {
+        "nome_completo": "Luiz Antônio Vasconcellos Carreira",
+        "variacoes": ["Luiz Carreira"],
+    },
     {"nome_completo": "Renata Gendiroba Vidal", "variacoes": []},
     {"nome_completo": "Alexandre Almeida Tinoco", "variacoes": []},
     {"nome_completo": "Alberto Vianna Braga Neto", "variacoes": ["Alberto Braga"]},
     {"nome_completo": "Giovanna Guiotti Testa Victer", "variacoes": ["Giovana Victer"]},
     {"nome_completo": "João Xavier Nunes Filho", "variacoes": ["João Xavier"]},
     {"nome_completo": "Ivan Euler Pereira de Paiva", "variacoes": ["Ivan Euler"]},
-    {"nome_completo": "Mila Correia Gonçalves Paes Scarton", "variacoes": ["Mila Paes"]},
+    {
+        "nome_completo": "Mila Correia Gonçalves Paes Scarton",
+        "variacoes": ["Mila Paes"],
+    },
     {"nome_completo": "Thiago Martins Dantas", "variacoes": ["Thiago Dantas"]},
     {"nome_completo": "Rodrigo Santos Alves", "variacoes": ["Rodrigo Alves"]},
-    {"nome_completo": "Antônio José da Cruz Júnior Magalhães", "variacoes": ["Júnior Magalhães"]},
-    {"nome_completo": "Isaura Genoveva de Oliveira Neta", "variacoes": ["Isaura Genoveva"]},
+    {
+        "nome_completo": "Antônio José da Cruz Júnior Magalhães",
+        "variacoes": ["Júnior Magalhães"],
+    },
+    {
+        "nome_completo": "Isaura Genoveva de Oliveira Neta",
+        "variacoes": ["Isaura Genoveva"],
+    },
     {"nome_completo": "Fernanda Silva Lordelo", "variacoes": ["Fernanda Lordelo"]},
     {"nome_completo": "Luiz Carlos de Souza", "variacoes": []},
     {"nome_completo": "Lázaro França Jezler Filho", "variacoes": []},
     {"nome_completo": "Décio Martins Mendes Filho", "variacoes": []},
     {"nome_completo": "Pablo Silva Souza", "variacoes": ["Pablo Souza"]},
     {"nome_completo": "Andrea Almeida Mendonça", "variacoes": []},
-    {"nome_completo": "Jeancleydson de Almeida Sacramento", "variacoes": ["Jeancleydson Sacramento"]},
+    {
+        "nome_completo": "Jeancleydson de Almeida Sacramento",
+        "variacoes": ["Jeancleydson Sacramento"],
+    },
     {"nome_completo": "Orlando Cezar da Costa Castro", "variacoes": []},
     {"nome_completo": "Isaac Chaves Edington", "variacoes": []},
     {"nome_completo": "Isabela Argolo de Almeida", "variacoes": ["Isabela Almeida"]},
     {"nome_completo": "Fernando Ferreira de Carvalho", "variacoes": []},
-    {"nome_completo": "Tânia Maria Scofield Souza Almeida", "variacoes": ["Tânia Scofield"]},
+    {
+        "nome_completo": "Tânia Maria Scofield Souza Almeida",
+        "variacoes": ["Tânia Scofield"],
+    },
     {"nome_completo": "Daniel Ribeiro Silva", "variacoes": ["Daniel Ribeiro"]},
     {"nome_completo": "Virgílio Teixeira Daltro", "variacoes": ["Virgílio Daltro"]},
-    {"nome_completo": "Humberto Costa Sturaro Filho", "variacoes": ["Humberto Sturaro"]},
+    {
+        "nome_completo": "Humberto Costa Sturaro Filho",
+        "variacoes": ["Humberto Sturaro"],
+    },
     {"nome_completo": "Samuel Pereira Araújo", "variacoes": ["Samuel Araújo"]},
-    {"nome_completo": "Sosthenes Tavares de Macêdo Almeida", "variacoes": ["Sosthenes Macêdo"]},
+    {
+        "nome_completo": "Sosthenes Tavares de Macêdo Almeida",
+        "variacoes": ["Sosthenes Macêdo"],
+    },
     {"nome_completo": "Talita Silva Vilarinho da Silva", "variacoes": []},
     {"nome_completo": "Carlos Augusto da Silva Gomes", "variacoes": ["Carlos Gomes"]},
     {"nome_completo": "Marcos Lessa Mendes", "variacoes": ["Marcos Lessa"]},
@@ -100,36 +127,18 @@ TERMOS_DIRETOS: list[str] = [
     *ORGAOS.values(),
 ]
 
-# Temas principais válidos
-TEMAS_VALIDOS: list[str] = [
-    "Notificação",
-    "Decisão Monocrática",
-    "Denúncia",
-    "Licitação",
-    "Contrato",
-    "Convênio",
-    "Pauta de Sessão",
-    "Ato da Presidência",
-    "Resolução",
-    "Prestação de Contas",
-    "Outro",
-]
-
 
 def build_system_prompt() -> str:
     """Constrói o system prompt injetando o organograma e servidores completos."""
 
-    orgaos_txt = "\n".join(
-        f"  - {sigla}: {nome}" for sigla, nome in ORGAOS.items()
-    )
+    orgaos_txt = "\n".join(f"  - {sigla}: {nome}" for sigla, nome in ORGAOS.items())
 
     servidores_txt = "\n".join(
-        "  - " + s["nome_completo"] +
-        (f"  (também: {', '.join(s['variacoes'])})" if s["variacoes"] else "")
+        "  - "
+        + s["nome_completo"]
+        + (f"  (também: {', '.join(s['variacoes'])})" if s["variacoes"] else "")
         for s in SERVIDORES
     )
-
-    temas_txt = ", ".join(f'"{t}"' for t in TEMAS_VALIDOS)
 
     return f"""Você é um analista especializado em documentos do Diário Oficial do Tribunal de Contas dos Municípios do Estado da Bahia (TCM-BA).
 
@@ -155,10 +164,11 @@ Considere como menção à Prefeitura de Salvador QUALQUER ocorrência de:
 2. Notificações cujo CONTEÚDO não menciona entidade/servidor da Prefeitura: se "Salvador" aparece somente na assinatura/fecho ("Salvador, em..."), ignore o ato inteiramente.
 3. Endereço do próprio TCM-BA: qualquer linha com "Centro Administrativo da Bahia", "CAB", "Salvador-BA" referindo-se ao endereço do tribunal.
 4. Menções a "Salvador" como mera referência geográfica genérica sem relação com a Prefeitura (ex: "nascido em Salvador", "residente em Salvador").
+5. Órgãos federais ou estaduais sediados em Salvador: expressões como "Receita Federal do Brasil em Salvador", "Ministério Público em Salvador", "Tribunal Regional Federal em Salvador" — o localizador "em Salvador" indica apenas a sede do órgão, não envolvimento da Prefeitura.
 
 ━━━ FORMATO DE SAÍDA ━━━
 Responda APENAS com um array JSON válido. Cada elemento deve ter EXATAMENTE estas chaves:
-- "tema": uma das opções: {temas_txt}
+- "descricao": resumo objetivo em uma frase do que trata o ato em relação à Prefeitura de Salvador (ex: "Notificação para apresentar manifestação em processo de prestação de contas da DESAL", "Decisão monocrática em denúncia contra servidor da SMS")
 - "trecho": o parágrafo ou sentença COMPLETA onde a menção ocorre (mínimo uma frase com contexto)
 - "entidade_identificada": array com todas as entidades ou servidores identificados no trecho (ex: ["Prefeitura de Salvador", "Virgílio Teixeira Daltro"]); use [] se nenhum
 - "siglas_mapeadas": array com todas as siglas do organograma encontradas no trecho (ex: ["DESAL", "SMED"]); use [] se nenhuma

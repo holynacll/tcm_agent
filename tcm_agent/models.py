@@ -13,24 +13,15 @@ class Ocorrencia(BaseModel):
     """Representa uma ocorrência identificada no Diário Oficial (saída do LLM)."""
 
     pagina: int
-    tema: str
+    secao: str = ""
+    descricao: str = ""
     trecho: str
     entidade_identificada: list[str] = Field(default_factory=list)
     siglas_mapeadas: list[str] = Field(default_factory=list)
     entidades_mapeadas: list[str] = Field(default_factory=list)
     servidores_mapeados: list[str] = Field(default_factory=list)
 
-    @field_validator("tema", mode="before")
-    @classmethod
-    def normalizar_tema(cls, v: object) -> str:
-        from .config import TEMAS_VALIDOS
-
-        tema = str(v).strip()
-        if tema in TEMAS_VALIDOS:
-            return tema
-        return next((t for t in TEMAS_VALIDOS if t.lower() in tema.lower()), "Outro")
-
-    @field_validator("trecho", mode="before")
+    @field_validator("descricao", "trecho", mode="before")
     @classmethod
     def strip_str(cls, v: object) -> str:
         return str(v).strip()
@@ -85,15 +76,16 @@ class ResultadoAnalise:
     data_publicacao: str | None = None
 
     def to_json(self, indent: int = 2) -> str:
-        temas: dict[str, int] = {}
         paginas_com_oc: set[int] = set()
+        secoes: set[str] = set()
         siglas: set[str] = set()
         entidades: set[str] = set()
         servidores: set[str] = set()
 
         for oc in self.ocorrencias:
-            temas[oc.tema] = temas.get(oc.tema, 0) + 1
             paginas_com_oc.add(oc.pagina)
+            if oc.secao:
+                secoes.add(oc.secao)
             siglas.update(oc.siglas_mapeadas)
             entidades.update(oc.entidades_mapeadas)
             servidores.update(oc.servidores_mapeados)
@@ -113,7 +105,7 @@ class ResultadoAnalise:
                 "resumo": {
                     "total_ocorrencias": self.total_ocorrencias,
                     "paginas_com_ocorrencias": sorted(paginas_com_oc),
-                    "temas": temas,
+                    "secoes_unicas": sorted(secoes),
                     "siglas_unicas": sorted(siglas),
                     "entidades_unicas": sorted(entidades),
                     "servidores_unicos": sorted(servidores),
