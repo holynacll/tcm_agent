@@ -8,6 +8,8 @@ Orquestra o fluxo completo:
 import logging
 from pathlib import Path
 
+from tcm_agent.highlighter import gerar_pdf_marcado
+
 from .agent import TCMAgente
 from .extractor import PaginaTexto, contar_paginas, extrair_paginas
 from .models import Ocorrencia, ResultadoAnalise, ResultadoPagina
@@ -95,15 +97,21 @@ class Pipeline:
         if secoes:
             self._log(f"Seções identificadas: {', '.join(sorted(secoes))}")
         else:
-            self._log("Nenhuma seção identificada no índice (contexto de seção indisponível)")
+            self._log(
+                "Nenhuma seção identificada no índice (contexto de seção indisponível)"
+            )
 
         resultados = self._processar_paginas(paginas_texto)
-        return self._montar_resultado(
+        resultado_analise = self._montar_resultado(
             nome_arquivo=caminho.name,
             total_paginas=total_paginas,
             resultados=resultados,
             metadados=metadados,
         )
+
+        gerar_pdf_marcado(caminho, resultado_analise)
+
+        return resultado_analise
 
     def analisar_textos(
         self,
@@ -235,7 +243,8 @@ class Pipeline:
 
         # descarta ocorrências sem nenhum elemento mapeado (falsos positivos do LLM)
         todas_ocorrencias = [
-            oc for oc in todas_ocorrencias
+            oc
+            for oc in todas_ocorrencias
             if oc.entidade_identificada
             or oc.siglas_mapeadas
             or oc.entidades_mapeadas

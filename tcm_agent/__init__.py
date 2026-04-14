@@ -20,6 +20,7 @@ Uso rápido:
 """
 
 from .config import ORGAOS, SERVIDORES
+from .highlighter import gerar_pdf_marcado
 from .models import Ocorrencia, ResultadoAnalise, ResultadoPagina
 from .pipeline import Pipeline
 
@@ -30,4 +31,5 @@ __all__ = [
     "ResultadoPagina",
     "ORGAOS",
     "SERVIDORES",
+    "gerar_pdf_marcado",
 ]

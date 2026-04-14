@@ -13,7 +13,7 @@ from pathlib import Path
 # permite importar tcm_agent do diretório atual
 sys.path.insert(0, str(Path(__file__).parent))
 
-from tcm_agent import Pipeline
+from tcm_agent import Pipeline, gerar_pdf_marcado
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -49,6 +49,10 @@ def exemplo_pdf_completo():
     with open("ocorrencias.json", "w", encoding="utf-8") as f:
         f.write(resultado.to_ocorrencias_json())
     print("Ocorrências salvas em ocorrencias.json")
+
+    # gera PDF com trechos marcados
+    pdf_marcado = gerar_pdf_marcado("tcm_2026-03-07_completo.pdf", resultado)
+    print(f"PDF marcado salvo em {pdf_marcado}")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
